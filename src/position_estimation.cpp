@@ -1,4 +1,4 @@
-#define PARTICLE_NUMBER 2000
+#define PARTICLE_NUMBER 200
 #define K_VALUE  0.00095d
 #define M_VALUE 0.00005d
 #define NEGHALFSIGMA2 -0.5/0.1
@@ -53,29 +53,29 @@ visualization_msgs::MarkerArray debug_particles;
 std::vector<Pose> particles(PARTICLE_NUMBER);
 
 void tagListenerCallback(const position_estimation::Anchor_msgs::ConstPtr& msg) {
-    if(msg->anc0 > 0) {
-        measuredDistance.anc0 = (double) msg->anc0 * K_VALUE + M_VALUE;
+    if(msg->anc0_t1 > 0) {
+        measuredDistance.anc0 = (double) msg->anc0_t1 * K_VALUE + M_VALUE;
     }
     else {
         measuredDistance.anc0 = -1;
     }
 
-    if(msg->anc1 > 0) {
-        measuredDistance.anc1 = (double) msg->anc1 * K_VALUE + M_VALUE;
+    if(msg->anc1_t1 > 0) {
+        measuredDistance.anc1 = (double) msg->anc1_t1 * K_VALUE + M_VALUE;
     }
     else {
         measuredDistance.anc1 = -1;
     }
 
-    if(msg->anc2 > 0) {
-        measuredDistance.anc2 = (double) msg->anc2 * K_VALUE + M_VALUE;
+    if(msg->anc2_t1 > 0) {
+        measuredDistance.anc2 = (double) msg->anc2_t1 * K_VALUE + M_VALUE;
     }
     else {
         measuredDistance.anc2 = -1;
     }
 
-    if(msg->anc3 > 0) {
-        measuredDistance.anc3 = (double) msg->anc3 * K_VALUE + M_VALUE;
+    if(msg->anc3_t1 > 0) {
+        measuredDistance.anc3 = (double) msg->anc3_t1 * K_VALUE + M_VALUE;
     }
     else {
         measuredDistance.anc3 = -1;
@@ -126,9 +126,9 @@ int main(int argc, char** argv) {
 	/* X, y, z points in order for anchors*/
 
     anc0(0) = 0.917; anc0(1) = 0.885; anc0(2) = 2.174;
-    anc1(0) = 4.667; anc1(1) = 0.98; anc1(2) = 1.955;
+    anc1(0) = 4.667; anc1(1) = 0.98; anc1(2) = 0.200;
     anc2(0) = 4.649; anc2(1) = 2.603; anc2(2) = 1.98;
-    anc3(0) = 0.259; anc3(1) = 3.168; anc3(2) = 1.952;
+    anc3(0) = 0.259; anc3(1) = 3.168; anc3(2) = 0.200;
 	/* X, y, z points of tags with respect to centre of the UAV on same axis as Anchors*/
     tag1_position(0) = 0; tag1_position(1) = 0; tag1_position(2) = 0;
     tag2_position(0) = 0; tag2_position(1) = 0; tag2_position(2) = 0;
@@ -225,7 +225,7 @@ int main(int argc, char** argv) {
         uavLocation.orientation(1) = atan2(sines(1), coses(1));
         uavLocation.orientation(2) = atan2(sines(2), coses(2));*/
 
-        if (sumWeight < 0.5 * PARTICLE_NUMBER) {
+        //if (sumWeight < 0.5 * PARTICLE_NUMBER) {
             for(int i = 0; i < PARTICLE_NUMBER; i++) {
                 acuWeight[i] /= sumWeight;
             }
@@ -264,7 +264,7 @@ int main(int argc, char** argv) {
 
                 particles[j] = ugly[b];
             }
-        }
+        //}
         debug_naive_mean_estimate.pose.position.x = uavLocation.position(0);
         debug_naive_mean_estimate.pose.position.y = uavLocation.position(1);
         debug_naive_mean_estimate.pose.position.z = uavLocation.position(2);

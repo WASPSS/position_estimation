@@ -45,10 +45,14 @@ int main(int argc, char** argv) {
     ros::NodeHandle n;
     tag_listener_pub = n.advertise<position_estimation::Anchor_msgs>("/anchor_dist", 10);
     position_estimation::Anchor_msgs msg;
-    msg.anc0 = -1;
-    msg.anc1 = -1;
-    msg.anc2 = -1;
-    msg.anc3 = -1;
+    msg.anc0_t0 = -1;
+    msg.anc1_t0 = -1;
+    msg.anc2_t0 = -1;
+    msg.anc3_t0 = -1;
+    msg.anc0_t1 = -1;
+    msg.anc1_t1 = -1;
+    msg.anc2_t1 = -1;
+    msg.anc3_t1 = -1;
 
     char prevAnchor = -1;
     char stopAnchor = 3;
@@ -61,6 +65,7 @@ int main(int argc, char** argv) {
         while(read(fd, &byte, 1) <= 0 || byte != 'A') {
         	 //std::cout << byte << "  wait 1"<< std::endl; //MyCode
         }
+        //Wait for Anchor message to be received
         while(read(fd, &byte, 1) <= 0) {
         	 //std::cout << byte  <<"  wait 2"<< std::endl; //Mycode
         }
@@ -142,24 +147,28 @@ int main(int argc, char** argv) {
         std::cout << "Avstånd till ankare " << anchor << ": " << distance << std::endl;
         if(prevAnchor >= anchor) {
             tag_listener_pub.publish(msg);
-            msg.anc0 = -1;
-            msg.anc1 = -1;
-            msg.anc2 = -1;
-            msg.anc3 = -1;
+            msg.anc0_t0 = -1;
+            msg.anc1_t0 = -1;
+            msg.anc2_t0 = -1;
+            msg.anc3_t0 = -1;
+            msg.anc0_t1 = -1;
+            msg.anc1_t1 = -1;
+            msg.anc2_t1 = -1;
+            msg.anc3_t1 = -1;
             polled_mask = 0x00;
         }
         switch (anchor) {
             case 0:
-                msg.anc0 = distance;
+                msg.anc0_t0 = distance;
                 break;
             case 1:
-                msg.anc1 = distance;
+                msg.anc1_t0 = distance;
                 break;
             case 2:
-                msg.anc2 = distance;
+                msg.anc2_t0 = distance;
                 break;
             case 3:
-                msg.anc3 = distance;
+                msg.anc3_t0 = distance;
                 break;
             default:
             break;
