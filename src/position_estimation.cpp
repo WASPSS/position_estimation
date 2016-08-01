@@ -1,4 +1,4 @@
-#define PARTICLE_NUMBER 200
+#define PARTICLE_NUMBER 2000
 #define K_VALUE  0.00095d
 #define M_VALUE 0.00005d
 #define NEGHALFSIGMA2 -0.5/0.1
@@ -20,6 +20,7 @@ Eigen::Vector3d anc3;
 Eigen::Vector3d tag1_position;
 Eigen::Vector3d tag2_position;
 Pose uavLocation;
+
 
 measurements measuredDistance;
 
@@ -49,41 +50,71 @@ std::uniform_real_distribution<double> particle_uniform_resample(0,1);
 std::normal_distribution<double> debug_sensor_noise(0.0d,0.2d);
 std::uniform_real_distribution<double> particle_angle(0, 2*M_PI);
 std::normal_distribution<double> particle_angle_drift(0, 0.05);
+//std::uniform_real_distribution<double> parameter_drift(-0.00001, 0.00001);
 visualization_msgs::MarkerArray debug_particles;
 std::vector<Pose> particles(PARTICLE_NUMBER);
 
 void tagListenerCallback(const position_estimation::Anchor_msgs::ConstPtr& msg) {
     if(msg->anc0_t1 > 0) {
-        measuredDistance.anc0 = (double) msg->anc0_t1 * K_VALUE + M_VALUE;
+        measuredDistance.anc0_t1 = (double) msg->anc0_t1 * K_VALUE + M_VALUE;
     }
     else {
-        measuredDistance.anc0 = -1;
+        measuredDistance.anc0_t1 = -1;
     }
 
     if(msg->anc1_t1 > 0) {
-        measuredDistance.anc1 = (double) msg->anc1_t1 * K_VALUE + M_VALUE;
+        measuredDistance.anc1_t1 = (double) msg->anc1_t1 * K_VALUE + M_VALUE;
     }
     else {
-        measuredDistance.anc1 = -1;
+        measuredDistance.anc1_t1 = -1;
     }
 
     if(msg->anc2_t1 > 0) {
-        measuredDistance.anc2 = (double) msg->anc2_t1 * K_VALUE + M_VALUE;
+        measuredDistance.anc2_t1 = (double) msg->anc2_t1 * K_VALUE + M_VALUE;
     }
     else {
-        measuredDistance.anc2 = -1;
+        measuredDistance.anc2_t1 = -1;
     }
 
     if(msg->anc3_t1 > 0) {
-        measuredDistance.anc3 = (double) msg->anc3_t1 * K_VALUE + M_VALUE;
+        measuredDistance.anc3_t1 = (double) msg->anc3_t1 * K_VALUE + M_VALUE;
     }
     else {
-        measuredDistance.anc3 = -1;
+        measuredDistance.anc3_t1 = -1;
+    }
+
+    if(msg->anc0_t2 > 0) {
+        measuredDistance.anc0_t2 = (double) msg->anc0_t2 * K_VALUE + M_VALUE;
+    }
+    else {
+        measuredDistance.anc0_t2 = -1;
+    }
+
+    if(msg->anc1_t2 > 0) {
+        measuredDistance.anc1_t2 = (double) msg->anc1_t2 * K_VALUE + M_VALUE;
+    }
+    else {
+        measuredDistance.anc1_t2 = -1;
+    }
+
+    if(msg->anc2_t2 > 0) {
+        measuredDistance.anc2_t2 = (double) msg->anc2_t2 * K_VALUE + M_VALUE;
+    }
+    else {
+        measuredDistance.anc2_t2 = -1;
+    }
+
+    if(msg->anc3_t2 > 0) {
+        measuredDistance.anc3_t2 = (double) msg->anc3_t2 * K_VALUE + M_VALUE;
+    }
+    else {
+        measuredDistance.anc3_t2 = -1;
     }
 	//std::cout << "megsdf receeveid" << std::endl;
 }
 
 int main(int argc, char** argv) {
+    std::cout << "POWER" << std::endl;
     ros::init(argc, argv, "positionestimation");
     ros::NodeHandle n;
     debug_particle_cloud_pub = n.advertise<visualization_msgs::MarkerArray>("/particle_cloud",10);
@@ -91,6 +122,8 @@ int main(int argc, char** argv) {
     debug_anc1_point_pub = n.advertise<visualization_msgs::Marker>("/anchor1", 10);
     debug_anc2_point_pub = n.advertise<visualization_msgs::Marker>("/anchor2", 10);
     debug_anc3_point_pub = n.advertise<visualization_msgs::Marker>("/anchor3", 10);
+    debug_tag1_pub = n.advertise<visualization_msgs::Marker>("/tag1", 10);
+        debug_tag2_pub = n.advertise<visualization_msgs::Marker>("/tag2", 10);
     debug_naive_mean_estimate_pub = n.advertise<visualization_msgs::Marker>("/naive_mean_estimate", 10);
 
     tag_listener_sub = n.subscribe("/anchor_dist", 1, tagListenerCallback);
@@ -126,12 +159,13 @@ int main(int argc, char** argv) {
 	/* X, y, z points in order for anchors*/
 
     anc0(0) = 0.917; anc0(1) = 0.885; anc0(2) = 2.174;
-    anc1(0) = 4.667; anc1(1) = 0.98; anc1(2) = 0.200;
+    anc1(0) = 4.667; anc1(1) = 0.98; anc1(2) = 1.955;
     anc2(0) = 4.649; anc2(1) = 2.603; anc2(2) = 1.98;
     anc3(0) = 0.259; anc3(1) = 3.168; anc3(2) = 0.200;
 	/* X, y, z points of tags with respect to centre of the UAV on same axis as Anchors*/
-    tag1_position(0) = 0; tag1_position(1) = 0; tag1_position(2) = 0;
-    tag2_position(0) = 0; tag2_position(1) = 0; tag2_position(2) = 0;
+    tag1_position(0) = 0; tag1_position(1) = 0.1; tag1_position(2) = 0;
+    tag2_position(0) = 0; tag2_position(1) = -0.1; tag2_position(2) = 0;
+
     debug_anc0.pose.position.x = anc0(0); debug_anc0.pose.position.y = anc0(1); debug_anc0.pose.position.z = anc0(2);
     debug_anc1.pose.position.x = anc1(0); debug_anc1.pose.position.y = anc1(1); debug_anc1.pose.position.z = anc1(2);
     debug_anc2.pose.position.x = anc2(0); debug_anc2.pose.position.y = anc2(1); debug_anc2.pose.position.z = anc2(2);
@@ -152,6 +186,8 @@ int main(int argc, char** argv) {
 
     Eigen::Vector3d coses;
     Eigen::Vector3d sines;
+
+    Eigen::Matrix3d R;
     while(ros::ok()) {
         ros::spinOnce();
         uavLocation.position.fill(0);
@@ -159,6 +195,7 @@ int main(int argc, char** argv) {
         coses.fill(0);
         sines.fill(0);
         double sumWeight = 0;
+
         for(int i = 0; i < PARTICLE_NUMBER; i++) {
             particles[i].position(0) += particle_uniform_drift (generator);
             particles[i].position(1) += particle_uniform_drift (generator);
@@ -176,25 +213,43 @@ int main(int argc, char** argv) {
                     particles[i].orientation(flubb) += 2*M_PI;
                 }
             }
-            //Eigen::Matrix3d R = getRotationMatrix(particles[i].orientation);
-            Eigen::Vector3d tg1 = particles[i].position;// + R*tag1_position;
+
+            R = getRotationMatrix(particles[i].orientation);
+            Eigen::Vector3d tg1 = particles[i].position + R*tag1_position;
+            Eigen::Vector3d tg2 = particles[i].position + R*tag2_position;
 
             double w = 0;
             double d = 0;
-            if(measuredDistance.anc0 > 0) {
-                d = measuredDistance.anc0 - AnchorDistance(tg1, anc0);
+            if(measuredDistance.anc0_t1 > 0) {
+                d = measuredDistance.anc0_t1 - AnchorDistance(tg1, anc0);
                 w += d*d;
             }
-            if(measuredDistance.anc1 > 0) {
-                d = measuredDistance.anc1 - AnchorDistance(tg1, anc1);
+            if(measuredDistance.anc1_t1 > 0) {
+                d = measuredDistance.anc1_t1 - AnchorDistance(tg1, anc1);
                 w += d*d;
             }
-            if(measuredDistance.anc2 > 0) {
-                d = measuredDistance.anc2 - AnchorDistance(tg1, anc2);
+            if(measuredDistance.anc2_t1 > 0) {
+                d = measuredDistance.anc2_t1 - AnchorDistance(tg1, anc2);
                 w += d*d;
             }
-            if(measuredDistance.anc3 > 0) {
-                d = measuredDistance.anc3 - AnchorDistance(tg1, anc3);
+            if(measuredDistance.anc3_t1 > 0) {
+                d = measuredDistance.anc3_t1 - AnchorDistance(tg1, anc3);
+                w += d*d;
+            }
+            if(measuredDistance.anc0_t2 > 0) {
+                d = measuredDistance.anc0_t2 - AnchorDistance(tg2, anc0);
+                w += d*d;
+            }
+            if(measuredDistance.anc1_t2 > 0) {
+                d = measuredDistance.anc1_t2 - AnchorDistance(tg2, anc1);
+                w += d*d;
+            }
+            if(measuredDistance.anc2_t2 > 0) {
+                d = measuredDistance.anc2_t2 - AnchorDistance(tg2, anc2);
+                w += d*d;
+            }
+            if(measuredDistance.anc3_t2 > 0) {
+                d = measuredDistance.anc3_t2 - AnchorDistance(tg2, anc3);
                 w += d*d;
             }
             w = exp(NEGHALFSIGMA2*w);
@@ -207,25 +262,25 @@ int main(int argc, char** argv) {
             particle->color.a = 0.5f;
         }*/
             uavLocation.position += w*particles[i].position;
-            /*coses(0) += w*cos(particles[i].orientation(0));
+            coses(0) += w*cos(particles[i].orientation(0));
             sines(0) += w*sin(particles[i].orientation(0));
             coses(1) += w*cos(particles[i].orientation(1));
             sines(1) += w*sin(particles[i].orientation(1));
             coses(2) += w*cos(particles[i].orientation(2));
-            sines(2) += w*sin(particles[i].orientation(2));*/
+            sines(2) += w*sin(particles[i].orientation(2));
             //naive_mean_estimate_angle += w*angle[i];
+
             sumWeight += w;
         }
         //std::cout << measuredDistance.anc0 << " " << measuredDistance.anc1 << " " << measuredDistance.anc2 << " " << measuredDistance.anc3 << std::endl;
         //std::cout << maxValue << std::endl;
         uavLocation.position /= sumWeight;
-        /*coses /= sumWeight;
+        coses /= sumWeight;
         sines /= sumWeight;
         uavLocation.orientation(0) = atan2(sines(0), coses(0));
         uavLocation.orientation(1) = atan2(sines(1), coses(1));
-        uavLocation.orientation(2) = atan2(sines(2), coses(2));*/
-
-        //if (sumWeight < 0.5 * PARTICLE_NUMBER) {
+        uavLocation.orientation(2) = atan2(sines(2), coses(2));
+        if (sumWeight < 0.5 * PARTICLE_NUMBER) {
             for(int i = 0; i < PARTICLE_NUMBER; i++) {
                 acuWeight[i] /= sumWeight;
             }
@@ -264,28 +319,31 @@ int main(int argc, char** argv) {
 
                 particles[j] = ugly[b];
             }
-        //}
+        }
         debug_naive_mean_estimate.pose.position.x = uavLocation.position(0);
         debug_naive_mean_estimate.pose.position.y = uavLocation.position(1);
         debug_naive_mean_estimate.pose.position.z = uavLocation.position(2);
 
-		//std::cout << uavLocation.position(0) << " " << uavLocation.position(1) << " " << uavLocation.position(2) << std::endl;
-        /*R = getRotationMatrix(uavLocation.orientation);
+        R = getRotationMatrix(uavLocation.orientation);
         Eigen::Vector3d tg1_tmp = uavLocation.position + R*tag1_position;
         Eigen::Vector3d tg2_tmp = uavLocation.position + R*tag2_position;
 
         visualization_msgs::Marker tg1 = debug_naive_mean_estimate;
+        tg1.color.b = 1.0;
         visualization_msgs::Marker tg2 = debug_naive_mean_estimate;
+        tg2.color.r = 0.0;
         tg1.pose.position.x = tg1_tmp(0); tg1.pose.position.y = tg1_tmp(1); tg1.pose.position.z = tg1_tmp(2);
-        tg2.pose.position.x = tg2_tmp(0); tg2.pose.position.y = tg2_tmp(1); tg2.pose.position.z = tg2_tmp(2);*/
+        tg2.pose.position.x = tg2_tmp(0); tg2.pose.position.y = tg2_tmp(1); tg2.pose.position.z = tg2_tmp(2);
+
+        std::cout << "Yaw: " << uavLocation.orientation.transpose() << std::endl;
 
         // Publicera allt
         debug_anc0_point_pub.publish(debug_anc0);
         debug_anc1_point_pub.publish(debug_anc1);
         debug_anc2_point_pub.publish(debug_anc2);
         debug_anc3_point_pub.publish(debug_anc3);
-        /*debug_position_tag1_pub.publish(tg1);
-        debug_position_tag2_pub.publish(tg2);*/
+        debug_tag1_pub.publish(tg1);
+        debug_tag2_pub.publish(tg2);
         debug_naive_mean_estimate_pub.publish(debug_naive_mean_estimate);
         loop_rate.sleep();
     }

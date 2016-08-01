@@ -12,10 +12,14 @@
 #include <pcl/common/eigen.h>
 
 struct measurements {
-    double anc0;
-    double anc1;
-    double anc2;
-    double anc3;
+    double anc0_t1;
+    double anc0_t2;
+    double anc1_t1;
+    double anc1_t2;
+    double anc2_t1;
+    double anc2_t2;
+    double anc3_t1;
+    double anc3_t2;
 };
 
 struct Pose {

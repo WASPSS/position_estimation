@@ -9,6 +9,7 @@ struct Position {
     float z;
 };
 
+
 float SqDistance(Position one, Position two) {
     float ex = one.x - two.x;
     float ey = one.y - two.y;
