@@ -161,10 +161,10 @@ int main(int argc, char** argv) {
     anc0(0) = 0.917; anc0(1) = 0.885; anc0(2) = 2.174;
     anc1(0) = 4.667; anc1(1) = 0.98; anc1(2) = 1.955;
     anc2(0) = 4.649; anc2(1) = 2.603; anc2(2) = 1.98;
-    anc3(0) = 0.259; anc3(1) = 3.168; anc3(2) = 0.200;
+    anc3(0) = 0.259; anc3(1) = 3.168; anc3(2) = 1.920;
 	/* X, y, z points of tags with respect to centre of the UAV on same axis as Anchors*/
-    tag1_position(0) = 0; tag1_position(1) = 0.1; tag1_position(2) = 0;
-    tag2_position(0) = 0; tag2_position(1) = -0.1; tag2_position(2) = 0;
+    tag1_position(0) = 0; tag1_position(1) = 0.25; tag1_position(2) = 0;
+    tag2_position(0) = 0; tag2_position(1) = -0.25; tag2_position(2) = 0;
 
     debug_anc0.pose.position.x = anc0(0); debug_anc0.pose.position.y = anc0(1); debug_anc0.pose.position.z = anc0(2);
     debug_anc1.pose.position.x = anc1(0); debug_anc1.pose.position.y = anc1(1); debug_anc1.pose.position.z = anc1(2);
